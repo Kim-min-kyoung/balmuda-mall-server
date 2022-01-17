@@ -8,6 +8,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(200),
             allowNull: false
         },
+        group: {
+            type: DataTypes.STRING(100),
+            allowNull: false
+        },
         price: {
             type: DataTypes.INTEGER(10),
             allowNull: false
@@ -22,7 +26,7 @@ module.exports = function(sequelize, DataTypes) {
         },
         product_description: {
             type: DataTypes.STRING(300),
-            allowNull: true
+            allowNull: false
         }
     });
     return product;
