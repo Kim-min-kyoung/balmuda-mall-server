@@ -49,7 +49,8 @@ app.get('/products', async (req, res) => {
             "subname",
             "imageUrl",
             "description",
-            "product_description"
+            "product_description",
+            "group"
         ]
     })
     .then((result) => {
@@ -87,7 +88,6 @@ app.post('/products', async(req,res)=>{
         res.send("상품 업로드에 문제가 발생했습니다.");
     })
 })
-
 // get방식 경로 파라미터 관리하기
 app.get('/products/:id',async(req,res) => {
     const params = req.params;
@@ -110,22 +110,60 @@ app.get('/products/:id',async(req,res) => {
     })
 })
 
-// // banners로 요청이 왔을 때 응답하기
-// app.get("/banners", (req, res) => {
-//     models.Banner.findAll({
-//         limit: 3,
-//         attributes: ["imageUrl", "id", "href"]
-//     })
-//     .then((result) => {
-//         res.send({
-//             banners: result,
-//         })
-//     })
-//     .catch((error) => {
-//         console.error(error);
-//         res.send("에러가 발생했습니다.");
-//     })
-// })
+
+/* products */
+// get방식 응답 지정
+app.get('/product', async (req, res) => {
+    const queryString = req.query;
+    console.log(queryString.id);
+    console.log(queryString.name);
+    models.Product.findAll({
+        order: [
+            ["id", "asc"]
+        ],
+        attributes: [
+            "id",
+            "name",
+            "subname",
+            "imageUrl",
+            "description",
+            "product_description",
+            "group",
+            "price"
+        ]
+    })
+    .then((result) => {
+        console.log("PRODUCTS:", result);
+        res.send({
+            product: result
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+        res.send('데이터를 가져오지 못했습니다.');
+    })
+})
+// get방식 경로 파라미터 관리하기
+app.get('/products/:group',async(req,res) => {
+    const params = req.params;
+    console.log(params);
+    // 하나만 찾을 때(select할 때) findOne
+    models.Product.findOne({
+        //조건절
+        where: {
+            group:params.group
+        }
+    })
+    .then((result) => {
+        res.send({
+            product: result,
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+        res.send('상품조회에 문제가 생겼습니다.')
+    })
+})
 
 /* recipe */
 // get방식 응답 지정
@@ -134,7 +172,6 @@ app.get('/recipes', async (req, res) => {
     console.log(queryString.id);
     console.log(queryString.name);
     models.Recipe.findAll({
-        // limit: 4,
         order: [
             ["id"]
         ],
@@ -174,6 +211,174 @@ app.post('/recipes', async(req,res)=>{
         console.error(error);
         res.send("레시피 업로드에 문제가 발생했습니다.");
     })
+})
+
+/* about */
+// get방식 응답 지정
+app.get('/abouts', async (req, res) => {
+    const queryString = req.query;
+    console.log(queryString.id);
+    console.log(queryString.name);
+    console.log(queryString.desc);
+    models.About.findAll({
+        order: [
+            ["id"]
+        ],
+        attributes: [
+            "id",
+            "name",
+            "desc",
+            "imageUrl"
+        ]
+    })
+    .then((result) => {
+        console.log("ABOUTS:", result);
+        res.send({
+            about: result
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+        res.send('데이터를 가져오지 못했습니다.');
+    })
+})
+// post방식 응답 지정
+app.post('/abouts', async(req,res)=>{
+    const body = req.body;
+    const { name, desc, imageUrl } = body;
+    // About 테이블에 테이터를 삽입
+    // 구문 -> models.테이블이름.create
+    models.About.create({ 
+        name,
+        desc,
+        imageUrl,
+    }).then((result) => {
+        console.log("스토리 생성 결과 : ", result);
+        res.send({
+            result,
+        })
+    })
+    .catch((error)=>{
+        console.error(error);
+        res.send("스토리 업로드에 문제가 발생했습니다.");
+    })
+})
+
+/* notice */
+// get방식 응답 지정
+app.get('/notice', async (req, res) => {
+    const queryString = req.query;
+    console.log(queryString.id);
+    console.log(queryString.name);
+    console.log(queryString.desc);
+    console.log(queryString.title);
+    console.log(queryString.createdAt);
+    models.Notice.findAll({
+        order: [
+            ["id"]
+        ],
+        attributes: [
+            "id",
+            "name",
+            "desc",
+            "title",
+            "createdAt"
+        ]
+    })
+    .then((result) => {
+        console.log("NOTICES:", result);
+        res.send({
+            notice: result
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+        res.send('데이터를 가져오지 못했습니다.');
+    })
+})
+// get방식 경로 파라미터 관리하기
+app.get('/notice/:id',async(req,res) => {
+    const params = req.params;
+    console.log(params);
+    // 하나만 찾을 때(select할 때) findOne
+    models.Notice.findOne({
+        //조건절
+        where: {
+            id:params.id
+        }
+    })
+    .then((result) => {
+        res.send({
+            notice: result,
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+        res.send('상품조회에 문제가 생겼습니다.')
+    })
+})
+// post방식 응답 지정
+app.post('/notice', async(req,res)=>{
+    const body = req.body;
+    const { id, name, desc, title, createdAt } = body;
+    // Notice 테이블에 테이터를 삽입
+    // 구문 -> models.테이블이름.create
+    models.Notice.create({ 
+        id,
+        name,
+        desc,
+        title,
+        createdAt
+    }).then((result) => {
+        console.log("스토리 생성 결과 : ", result);
+        res.send({
+            result,
+        })
+    })
+    .catch((error)=>{
+        console.error(error);
+        res.send("스토리 업로드에 문제가 발생했습니다.");
+    })
+})
+// 수정
+// update 테이블명 set 필드이름 = 값 where 필드명 = 값
+app.post('/notice/:id/edit/:id', async(req, res) => {
+    const body = req.body;
+    const { id, name, desc, title, createdAt } = body;
+    // Notice 테이블에 테이터를 삽입
+    // 구문 -> models.테이블이름.update
+    models.Notice.update({ 
+        id,
+        name,
+        desc,
+        title,
+        createdAt
+    }).then((result) => {
+        console.log("스토리 생성 결과 : ", result);
+        res.send({
+            result,
+        })
+    })
+    .catch((error)=>{
+        console.error(error);
+        res.send("스토리 업로드에 문제가 발생했습니다.");
+    })
+    // const param = req.params;
+    // const { c_name, c_phone, c_birthday, c_gender, c_addr } = req.body;
+    // console.log(req.body);
+    // connection.query(`update customers set c_name='${c_name}', c_phone='${c_phone}', c_birthday='${c_birthday}', c_gender='${c_gender}', c_addr='${c_addr}' where c_no = ${param.id}`,
+    // function (err, result, fields) {
+    //     console.log(result,err);
+    // })  
+})
+// delete 삭제하기
+app.delete('/notice/:id',async(req, res) => {
+    const params = req.params;
+    console.log('삭제');
+    models.Notice.destroy({ where: { id: params.id }})
+    .then( res.send(
+        "게시글이 삭제되었습니다."
+    ));
 })
 
 // 설정한 app을 실행 시키기
