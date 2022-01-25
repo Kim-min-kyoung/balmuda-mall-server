@@ -50,7 +50,45 @@ app.get('/products', async (req, res) => {
             "imageUrl",
             "description",
             "product_description",
-            "group"
+            "group",
+            "price"
+        ]
+    })
+    .then((result) => {
+        console.log("PRODUCTS:", result);
+        res.send({
+            product: result
+        })
+    })
+    .catch((error) => {
+        console.error(error);
+        res.send('데이터를 가져오지 못했습니다.');
+    })
+})
+
+// get방식 응답 지정
+app.get('/products_group/:group', async (req, res) => {
+    const params = req.params;
+    console.log(params);
+    const queryString = req.query;
+    console.log(queryString.id);
+    console.log(queryString.name);
+    models.Product.findAll({
+        where: {
+            group:params.group
+        },
+        order: [
+            ["id", "asc"]
+        ],
+        attributes: [
+            "id",
+            "name",
+            "subname",
+            "imageUrl",
+            "description",
+            "product_description",
+            "group",
+            "price"
         ]
     })
     .then((result) => {
@@ -68,15 +106,18 @@ app.get('/products', async (req, res) => {
 // post방식 응답 지정
 app.post('/products', async(req,res)=>{
     const body = req.body;
-    const { name, subname, description, price, imageUrl } = body;
+    const { id, name, subname, description, product_description, group, price, imageUrl } = body;
     // Product 테이블에 테이터를 삽입
     // 구문 -> models.테이블이름.create
     models.Product.create({
+        id,
         name,
         subname,
-        description,
-        price,
         imageUrl,
+        description,
+        product_description,
+        group,
+        price
     }).then((result) => {
         console.log("상품 생성 결과 : ", result);
         res.send({
@@ -342,7 +383,7 @@ app.post('/notice', async(req,res)=>{
 })
 // 수정
 // update 테이블명 set 필드이름 = 값 where 필드명 = 값
-app.post('/notice/:id/edit/:id', async(req, res) => {
+app.post('/notice/:id/edit', async(req, res) => {
     const body = req.body;
     const { id, name, desc, title, createdAt } = body;
     // Notice 테이블에 테이터를 삽입
@@ -379,6 +420,34 @@ app.delete('/notice/:id',async(req, res) => {
     .then( res.send(
         "게시글이 삭제되었습니다."
     ));
+})
+
+/* join */
+// post방식 응답 지정
+app.post('/join', async(req,res)=>{
+    const body = req.body;
+    const { id, name, phone, birthday, addr, addrdetail, password, userId } = body;
+    // Notice 테이블에 테이터를 삽입
+    // 구문 -> models.테이블이름.create
+    models.Notice.create({ 
+        id,
+        name,
+        phone,
+        birthday,
+        addr,
+        addrdetail,
+        password,
+        userId
+    }).then((result) => {
+        console.log("스토리 생성 결과 : ", result);
+        res.send({
+            result,
+        })
+    })
+    .catch((error)=>{
+        console.error(error);
+        res.send("스토리 업로드에 문제가 발생했습니다.");
+    })
 })
 
 // 설정한 app을 실행 시키기
