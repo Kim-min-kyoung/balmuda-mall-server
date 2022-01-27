@@ -7,18 +7,21 @@ const app = express();
 const port = 8080;
 // sequelize를 실행하는 함수
 const models = require('./models');
+// json 형식의 데이터를 처리할 수 있게 설정하는 코드
+app.use(express.json());
+// 브라우저의 CORS 이슈를 막기 위해 사용하는 코드
+app.use(cors()) 
 
-app.use(cors());
 // 해당파일을 보여줄 때 입력한 경로대로 보여주기 위해 세팅
 app.use("/upload",express.static("upload"));
 // 업로드 이미지를 관리하는 스토리지 서버로 멀터를 사용함.
 const multer = require('multer');
 // 이미지 파일 저장 장소 지정
-const upload = multer({ 
+const uploadProduct = multer({ 
     storage: multer.diskStorage({
         destination: function(req, file, cd) {
             // 저장 장소 지정
-            cd(null, 'upload');
+            cd(null, 'upload/product');
         },
         filename: function(req, file, cd){
             // 저장 이름 지정
@@ -27,11 +30,40 @@ const upload = multer({
         }
     })
 });
-
-// json 형식의 데이터를 처리할 수 있게 설정하는 코드
-app.use(express.json());
-// 브라우저의 CORS 이슈를 막기 위해 사용하는 코드
-app.use(cors()) 
+// 이미지 파일 저장장소 지정
+const uploadDetail = multer({
+    storage: multer.diskStorage({
+        destination: function(req, file, cd) {
+            // 저장 장소 지정
+            cd(null, 'upload/detail');
+        },
+        filename: function(req, file, cd) {
+            // 저장 이름 지정
+            // 파일에 있는 원본 이름으로 저장
+            cd(null, file.originalname);
+        }
+    })
+})
+// 이미지 파일 post 요청 시 업로드 폴더에 이미지 저장
+// 이미지가 하나일 때 single
+app.post('/upload_product', uploadProduct.single('image'), (req, res) => {
+    console.log('aa');
+    const file = req.file;
+    console.log(file);
+    // 이미지 파일의 경로를 응답해줌
+    res.send({
+        imageUrl: file.filename
+    })
+})
+app.post('/upload_detail', uploadDetail.single('image'), (req, res) => {
+    console.log('bb');
+    const file = req.file;
+    console.log(file);
+    // 이미지 파일의 경로를 응답해줌
+    res.send({
+        imageUrl: file.filename
+    })
+})
 
 // get방식 응답 지정
 app.get('/products', async (req, res) => {
@@ -65,7 +97,6 @@ app.get('/products', async (req, res) => {
         res.send('데이터를 가져오지 못했습니다.');
     })
 })
-
 // get방식 응답 지정
 app.get('/products_group/:group', async (req, res) => {
     const params = req.params;
@@ -102,7 +133,6 @@ app.get('/products_group/:group', async (req, res) => {
         res.send('데이터를 가져오지 못했습니다.');
     })
 })
-
 // post방식 응답 지정
 app.post('/products', async(req,res)=>{
     const body = req.body;
@@ -119,12 +149,14 @@ app.post('/products', async(req,res)=>{
         group,
         price
     }).then((result) => {
+        console.log("성공");
         console.log("상품 생성 결과 : ", result);
         res.send({
             result,
         })
     })
     .catch((error)=>{
+        console.log("실패");
         console.error(error);
         res.send("상품 업로드에 문제가 발생했습니다.");
     })
@@ -150,7 +182,6 @@ app.get('/products/:id',async(req,res) => {
         res.send('상품조회에 문제가 생겼습니다.')
     })
 })
-
 
 /* products */
 // get방식 응답 지정
@@ -362,6 +393,8 @@ app.get('/notice/:id',async(req,res) => {
 app.post('/notice', async(req,res)=>{
     const body = req.body;
     const { id, name, desc, title, createdAt } = body;
+    console.log('공지사항여기여기')
+    console.log(req.body);
     // Notice 테이블에 테이터를 삽입
     // 구문 -> models.테이블이름.create
     models.Notice.create({ 
@@ -383,43 +416,31 @@ app.post('/notice', async(req,res)=>{
 })
 // 수정
 // update 테이블명 set 필드이름 = 값 where 필드명 = 값
-app.post('/notice/:id/edit', async(req, res) => {
+app.post('/notice_edit/:id', async(req, res) => {
+    const params = req.params;
+    console.log(params);
     const body = req.body;
     const { id, name, desc, title, createdAt } = body;
     // Notice 테이블에 테이터를 삽입
     // 구문 -> models.테이블이름.update
+
+    console.log(body);
     models.Notice.update({ 
         id,
         name,
         desc,
         title,
         createdAt
-    }).then((result) => {
+    },{where: {id: params.id}}).then((result) => {
         console.log("스토리 생성 결과 : ", result);
         res.send({
             result,
         })
     })
     .catch((error)=>{
-        console.error(error);
+        console.log(error);
         res.send("스토리 업로드에 문제가 발생했습니다.");
     })
-    // const param = req.params;
-    // const { c_name, c_phone, c_birthday, c_gender, c_addr } = req.body;
-    // console.log(req.body);
-    // connection.query(`update customers set c_name='${c_name}', c_phone='${c_phone}', c_birthday='${c_birthday}', c_gender='${c_gender}', c_addr='${c_addr}' where c_no = ${param.id}`,
-    // function (err, result, fields) {
-    //     console.log(result,err);
-    // })  
-})
-// delete 삭제하기
-app.delete('/notice/:id',async(req, res) => {
-    const params = req.params;
-    console.log('삭제');
-    models.Notice.destroy({ where: { id: params.id }})
-    .then( res.send(
-        "게시글이 삭제되었습니다."
-    ));
 })
 
 /* join */
