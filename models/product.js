@@ -27,6 +27,10 @@ module.exports = function(sequelize, DataTypes) {
         product_description: {
             type: DataTypes.STRING(300),
             allowNull: false
+        },
+        quantity: {
+            type: DataTypes.INTEGER(10),
+            allowNull: false 
         }
     });
     return product;

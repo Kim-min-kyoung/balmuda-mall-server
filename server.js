@@ -83,7 +83,8 @@ app.get('/products', async (req, res) => {
             "description",
             "product_description",
             "group",
-            "price"
+            "price",
+            "quantity"
         ]
     })
     .then((result) => {
@@ -264,26 +265,6 @@ app.get('/recipes', async (req, res) => {
         res.send('데이터를 가져오지 못했습니다.');
     })
 })
-// post방식 응답 지정
-app.post('/recipes', async(req,res)=>{
-    const body = req.body;
-    const { name, imageUrl } = body;
-    // Recipe 테이블에 테이터를 삽입
-    // 구문 -> models.테이블이름.create
-    models.Recipe.create({ 
-        name,
-        imageUrl,
-    }).then((result) => {
-        console.log("레시피 생성 결과 : ", result);
-        res.send({
-            result,
-        })
-    })
-    .catch((error)=>{
-        console.error(error);
-        res.send("레시피 업로드에 문제가 발생했습니다.");
-    })
-})
 
 /* about */
 // get방식 응답 지정
@@ -312,27 +293,6 @@ app.get('/abouts', async (req, res) => {
     .catch((error) => {
         console.error(error);
         res.send('데이터를 가져오지 못했습니다.');
-    })
-})
-// post방식 응답 지정
-app.post('/abouts', async(req,res)=>{
-    const body = req.body;
-    const { name, desc, imageUrl } = body;
-    // About 테이블에 테이터를 삽입
-    // 구문 -> models.테이블이름.create
-    models.About.create({ 
-        name,
-        desc,
-        imageUrl,
-    }).then((result) => {
-        console.log("스토리 생성 결과 : ", result);
-        res.send({
-            result,
-        })
-    })
-    .catch((error)=>{
-        console.error(error);
-        res.send("스토리 업로드에 문제가 발생했습니다.");
     })
 })
 
@@ -404,14 +364,14 @@ app.post('/notice', async(req,res)=>{
         title,
         createdAt
     }).then((result) => {
-        console.log("스토리 생성 결과 : ", result);
+        console.log("게시판 생성 결과 : ", result);
         res.send({
             result,
         })
     })
     .catch((error)=>{
         console.error(error);
-        res.send("스토리 업로드에 문제가 발생했습니다.");
+        res.send("게시판 업로드에 문제가 발생했습니다.");
     })
 })
 // 수정
@@ -432,42 +392,14 @@ app.post('/notice_edit/:id', async(req, res) => {
         title,
         createdAt
     },{where: {id: params.id}}).then((result) => {
-        console.log("스토리 생성 결과 : ", result);
+        console.log("게시판 생성 결과 : ", result);
         res.send({
             result,
         })
     })
     .catch((error)=>{
         console.log(error);
-        res.send("스토리 업로드에 문제가 발생했습니다.");
-    })
-})
-
-/* join */
-// post방식 응답 지정
-app.post('/join', async(req,res)=>{
-    const body = req.body;
-    const { id, name, phone, birthday, addr, addrdetail, password, userId } = body;
-    // Notice 테이블에 테이터를 삽입
-    // 구문 -> models.테이블이름.create
-    models.Notice.create({ 
-        id,
-        name,
-        phone,
-        birthday,
-        addr,
-        addrdetail,
-        password,
-        userId
-    }).then((result) => {
-        console.log("스토리 생성 결과 : ", result);
-        res.send({
-            result,
-        })
-    })
-    .catch((error)=>{
-        console.error(error);
-        res.send("스토리 업로드에 문제가 발생했습니다.");
+        res.send("게시판 업로드에 문제가 발생했습니다.");
     })
 })
 
