@@ -4,7 +4,7 @@
 const http = require('http');
 // 172.30.1.43 localhost와 같음! 내 컴퓨터 주소를 의미함.
 const hostname = "172.30.1.43";
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 // 서버만들기 createServer
 const server = http.createServer(function (req, res) {
